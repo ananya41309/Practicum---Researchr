@@ -44,13 +44,10 @@ def search():
     title = request.form["title"]
     description = request.form["description"]
 
-    keywords = description.split()
-    print("Keywords:", keywords)
-    statuses = "forecasted"
     #build json request
     payload = {
-        "keywords": keywords,
-        "oppStatuses": "forecasted|posted"
+        "oppStatuses": "forecasted|posted",
+        "keyword": description,
     }
 
     headers = {
