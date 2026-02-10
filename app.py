@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import os, requests, json
+from file_parser import parse_file
+from keyword_extractor import extract_keywords
+
+
 
 #DELETE
 #from demodata import grants
@@ -27,15 +31,21 @@ def index():
         description = request.form.get("description")
         files = request.files.getlist("files")
 
-        print("Title:", title)
-        print("Description:", description)
+        extracted_text = ""
 
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+                file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+                file.save(file_path)
 
-        #return redirect(url_for("index"))
+                extracted_text += " " + parse_file(file_path)
+                keywords = extract_keywords(extracted_text)
+                app.config["KEYWORDS"] = keywords
+
+
+        # Store parsed text temporarily (simple approach)
+        app.config["PARSED_TEXT"] = extracted_text
 
     return render_template("index.html")
 
@@ -44,13 +54,29 @@ def search():
     title = request.form["title"]
     description = request.form["description"]
 
+    file_text = app.config.get("PARSED_TEXT", "")
+
+    # keywords from uploaded documents
+    doc_keywords = app.config.get("KEYWORDS", [])
+
+    # keywords from project description
+    desc_keywords = extract_keywords(description)
+
+    # merge + remove duplicates
+    merged_keywords = list(set(doc_keywords + desc_keywords))
+
+    keyword_string = " ".join(merged_keywords)
+    combined_text = f"{title} {description} {keyword_string}"
+
+
+
     #build json request
     payload = {
         "oppStatuses": "forecasted|posted",
-        "keyword": description,
+        "keyword": combined_text,
     }
 
-    headers = {
+    headers = {  
         "Content-Type": "application/json",
     }
     
