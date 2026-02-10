@@ -25,7 +25,13 @@
             <p class="relevance">
               Relevance score: 1.00
             </p>
+            <p class="grant-description">
+              {{ result.description }}
+            </p>
 
+            <button class="apply-button" onclick="window.open('https://www.grants.gov/search-results-detail/{{ result.id }}', '_blank')">
+              View Grant Details
+            </button>
             <!-- Optional placeholder for future explanation -->
             <p class="explanation">
               Matched based on similarity between your project description and the grant abstract.

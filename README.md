@@ -57,13 +57,13 @@ http://127.0.0.1:5000
 
 ## Usage
 
-Open the app in your browser
+1. Open the app in your browser
 
-Enter a project title and description
+2. Enter a project title and description
 
-Upload any relevant files
+3. Upload any relevant files
 
-Submit the form
+4. Submit the form
 
 Researchr will automatically search for grants that are available and fit your project!
 
