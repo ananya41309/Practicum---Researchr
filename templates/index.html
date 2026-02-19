@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Researchr</title>
+  <title>Find Me The Money</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
   <div class="container">
-    <h1>Researchr</h1>
+    <h1>Find Me The Money</h1>
     <p class="subtitle">
-      Describe your research project and upload any relevant files, and we'll find you grants that you can apply to for funding!
+      Describe your research project and upload files — we’ll match you with relevant funding opportunities!
     </p>
 
     <form class="project-form" method="POST" enctype="multipart/form-data" action="{{ url_for('search') }}">
+
       <div class="form-group">
         <label for="title">Project Title</label>
         <input type="text" id="title" name="title" required />
@@ -20,22 +22,88 @@
 
       <div class="form-group">
         <label for="description">Project Description</label>
-        <textarea
-          id="description"
-          name="description"
-          rows="6"
-          required
-        ></textarea>
+        <textarea id="description" name="description" rows="6" required></textarea>
       </div>
 
-      <div class="form-group">
-        <label for="files">Relevant Files</label>
+      <div class="form-group file-upload-group">
+        <label for="files" class="upload-label">Upload Relevant Documents</label>
         <input type="file" id="files" name="files" multiple />
         <small>PDF, DOCX, CSV, TXT</small>
       </div>
 
-      <button type="submit">Submit Project</button>
+      <!-- Filter Section -->
+      <button type="button" id="filterToggle" class="btn action-btn filter-btn">Filters</button>
+
+      <!-- Selected Filter Chips -->
+      <div id="activeFilters" class="active-filters"></div>
+
+      <!-- Sort + Submit Row -->
+      <div class="sort-submit-row">
+        <select id="sortOptions" class="sort-dropdown">
+          <option value="relevance" selected>Sort by: Relevance</option>
+          <option value="open_status">Status (Open first)</option>
+          <option value="deadline">Deadline</option>
+        </select>
+
+        <button type="submit" class="btn action-btn search-btn">
+          Search Funds
+        </button>
+      </div>
+
     </form>
   </div>
+
+  <!-- Filters Sidebar / Modal -->
+  <aside id="filtersSidebar" class="filters-sidebar hidden">
+    <h3>Filters</h3>
+
+    <div class="filter-section">
+      <p class="filter-title">Status</p>
+      <label><input type="checkbox" name="status" value="open"> Open</label>
+      <label><input type="checkbox" name="status" value="forecast"> Forecast</label>
+    </div>
+
+    <div class="filter-section">
+      <p class="filter-title">Eligibility</p>
+      <label><input type="checkbox" name="eligibility" value="federal"> Federal</label>
+      <label><input type="checkbox" name="eligibility" value="state"> State</label>
+      <label><input type="checkbox" name="eligibility" value="private"> Private</label>
+    </div>
+
+    <div class="filter-section">
+      <p class="filter-title">Category</p>
+      <label><input type="checkbox" name="category" value="science"> Science</label>
+      <label><input type="checkbox" name="category" value="education"> Education</label>
+      <label><input type="checkbox" name="category" value="health"> Health</label>
+    </div>
+
+    <button id="applyFilters" class="btn apply-btn">Apply Filters</button>
+  </aside>
+
+  <script>
+    // Show/hide filters sidebar and update filter chips
+    const filterToggleBtn = document.getElementById('filterToggle');
+    const filtersSidebar = document.getElementById('filtersSidebar');
+    const activeFiltersDiv = document.getElementById('activeFilters');
+
+    filterToggleBtn.onclick = () => {
+      filtersSidebar.classList.toggle('hidden');
+    };
+
+    document.getElementById('applyFilters').onclick = () => {
+      activeFiltersDiv.innerHTML = '';
+      const checkedBoxes = document.querySelectorAll('aside input[type="checkbox"]:checked');
+
+      checkedBoxes.forEach(box => {
+        const chip = document.createElement('span');
+        chip.className = 'filter-chip';
+        chip.textContent = `${box.name}: ${box.value}`;
+        activeFiltersDiv.appendChild(chip);
+      });
+
+      filtersSidebar.classList.add('hidden');
+    };
+  </script>
+
 </body>
 </html>
