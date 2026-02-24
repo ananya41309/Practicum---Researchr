@@ -160,15 +160,29 @@ def search():
                 #print("Opportunity Data:", opp_data)
                 if not opp_data.get("forecast", {}):
                     opp_desc = opp_data.get("synopsis", {}).get("synopsisDesc", "No Description")
+                    award_ceiling = opp_data.get("synopsis", {}).get("awardCeiling")
+                    award_floor = opp_data.get("synopsis", {}).get("awardFloor")
                 else:
                     opp_desc = opp_data.get("forecast", {}).get("forecastDesc", "No Description")
+                    award_ceiling = opp_data.get("forecast", {}).get("awardCeiling")
+                    award_floor = opp_data.get("forecast", {}).get("awardFloor")
+
+                average_award = None
+                try:
+                    if award_ceiling and award_floor:
+                        average_award = (int(award_ceiling) + int(award_floor)) // 2
+                except ValueError:
+                    average_award = None
                     
                 grants.append({
                     "id": hit_id,
                     "title": hit_title,
                     "description": opp_desc,
                     "openDate": hit_opendate,
-                    "closeDate": hit_closedate
+                    "closeDate": hit_closedate,
+                    "award_ceiling": award_ceiling,
+                    "award_floor": award_floor,
+                    "average_award": average_award
                 })
             
     #project_text = f"{title} {description}"

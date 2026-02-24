@@ -27,6 +27,23 @@
             </p>
             <p><b>Open Date:</b> {{ result.openDate }} <b>Close Date:</b> {{ result.closeDate }}</p>
 
+            <!-- Show award range if available -->
+            {% if result.award_floor or result.award_ceiling %}
+              <p><strong>Award Range:</strong>
+                {% if result.award_floor and result.award_floor != "none"%}
+                  ${{ (result.award_floor | int // 1000) }}K
+                {% else %}
+                  N/A
+                {% endif %}
+                –
+                {% if result.award_ceiling and result.award_ceiling != "none"%}
+                  ${{ (result.award_ceiling | int // 1000) }}K
+                {% else %}
+                  N/A
+                {% endif %}
+              </p>
+            {% endif %}
+
             <p class="grant-description">
               {{ result.description | safe}}
             </p>
