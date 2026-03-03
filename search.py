@@ -35,43 +35,63 @@ def nufr_search(keywords):
 
     r = requests.get(nufr_url, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
-    
+    #for link in soup.select("table a"):
+    #    print(link.get("href"))
+        
     rows = soup.select("table tr")  # adjust selector if needed
-
+    #print(rows[1])
     data = [] # this contains all of the rows from the table
     
 
     for row in rows[1:]:  # skip header
+        
+        # Find the hidden description container
+        row_soup = BeautifulSoup(str(row), "html.parser")
+        #print(row_soup)
+        #print("----")
+        description_div = row_soup.select_one(".details-description")
+        #print(description_div)
+        # Extract only real outbound links (exclude href="#")
+        link_tag = description_div.find("a", href=True)
+
+        if link_tag and link_tag["href"] != "#":
+            grant_url = link_tag["href"]
+        else:
+            grant_url = None
+        
         cells = [td.get_text(strip=True) for td in row.find_all("td")]
         if cells:
-            
+            #print("Cells:", cells)
             pattern = r"(Rolling|\d{2}/\d{2}/\d{4})\s*$"
-
+            #print(cells[4])
             match = re.search(pattern, cells[0])
 
             if match:
                 terminal_value = match.group(1)
-                print("Extracted:", terminal_value)
+                #print("Extracted:", terminal_value)
             else:
                 terminal_value = None
                 
             cleaned = re.sub(
-                r"\n?Career stage:.*(?:\n|$)",
+                r"\n?Explore the.*(?:\n|$)",
                 "",
                 cells[0],
                 flags=re.IGNORECASE
             ).strip()
-            
             data.append({
                 "description": cleaned,
-                "deadline": terminal_value,
+                "openDate": "N/A",
+                "closeDate": terminal_value,
                 "title": cells[1],
                 "funder": cells[2],
                 "status": cells[3],
+                "award_floor": "none",
+                "award_ceiling": "none",
                 "amount": cells[4],
                 "career_stage": cells[5],
                 "discipline": cells[6],
-                "deadline_month": cells[7]
+                "deadline_month": cells[7],
+                "url": grant_url
             })
             
     def combined_text(entry):
@@ -98,6 +118,7 @@ def grants_gov_search(title, keywords):
     
     keyword_string = " ".join(keywords)
     combined_text = f"{title} {keyword_string}"
+    
     #build json request
     payload = {
         "oppStatuses": "forecasted|posted",
@@ -189,7 +210,8 @@ def grants_gov_search(title, keywords):
                     "closeDate": hit_closedate,
                     "award_ceiling": award_ceiling,
                     "award_floor": award_floor,
-                    "average_award": average_award
+                    "average_award": average_award,
+                    "url": f"https://www.grants.gov/search-results-detail/{hit_id}"
                 })
                 
     def combined_text(entry):

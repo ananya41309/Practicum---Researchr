@@ -23,7 +23,7 @@
             <h2 class="grant-title">{{ result.title }}</h2>
 
             <p class="relevance">
-              Relevance score: {{ result.relevance }}
+              Relevance score: {{ result.score }}
             </p>
             <p><b>Open Date:</b> {{ result.openDate }} <b>Close Date:</b> {{ result.closeDate }}</p>
 
@@ -43,9 +43,14 @@
                 {% endif %}
               </p>
             {% else %}
+              {% if result.amount != "none"%}
               <p>
-                <strong>Award Range: N/A</strong>
+                <strong>Award Range: {{ result.amount }}</strong>
               </p>
+              {% else %}
+              <p><strong>Award Range:</strong> N/A</p>
+              {% endif %}
+
             {% endif %}
 
             <div class="description-wrapper">
@@ -55,7 +60,7 @@
               <div class="fade"></div>
             </div>
             <button class="read-more-btn" onclick="toggleDescription(this)">Read more</button>
-            <button class="apply-button" onclick="window.open('https://www.grants.gov/search-results-detail/{{ result.id }}', '_blank')">
+            <button class="apply-button" onclick="window.open('{{ result.url }}', '_blank')">
               View Grant Details
             </button>
             <!-- Optional placeholder -->

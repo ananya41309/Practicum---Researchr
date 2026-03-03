@@ -25,10 +25,8 @@ client = genai.Client(api_key=api_key)
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 def compute_relevance(grant_text, keywords):
     grant_text = grant_text.lower()
@@ -95,7 +93,6 @@ def search():
     print("Description Keywords:", desc_keywords)
     print("Merged Keywords:", merged_keywords)
     print("----------------------\n")
-
 
     results = search_grants(title, description, merged_keywords)
     """
