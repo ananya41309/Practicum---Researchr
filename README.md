@@ -9,13 +9,13 @@ This is a simple Flask web application that allows users to submit a research pr
 - Basic file type validation
 - Displaying search results (WIP)
 
-## Planned Features
+## Planned/WIP Features
 
 - **Grant Matching**
   - Given a research project description and uploaded materials, the system will identify relevant grants that the researcher may be eligible to apply for.
   - Grant recommendations may be based on keywords, research area, eligibility criteria, and funding agency priorities.
 - **Wider Searching for Sources**
-  - Currently we are just pulling from one site (grants.gov)
+  - Currently we are just pulling from <grants.gov> and the Northwestern University Funding Relations [https://www.northwestern.edu/foundationrelations/find-funding/funding-opportunities/](funding opportunities) page
   - Eventually we will look to source from other places for funding, e.g. foundations, non-profits, companies with RFPs.
 - **Refined Searching**
   - The researcher will be able to filter their search for specific grants, due dates, funding amounts, organizations, etc.

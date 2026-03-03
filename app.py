@@ -7,6 +7,7 @@ from file_parser import parse_file
 from keyword_extractor import extract_keywords
 from google import genai
 from api_key import api_key
+from search import search_grants
 
 #DELETE
 #from demodata import grants
@@ -95,10 +96,9 @@ def search():
     print("Merged Keywords:", merged_keywords)
     print("----------------------\n")
 
-    keyword_string = " ".join(merged_keywords)
-    combined_text = f"{title} {keyword_string}"
 
-
+    results = search_grants(title, description, merged_keywords)
+    """
 
     #build json request
     payload = {
@@ -171,7 +171,7 @@ def search():
                     award_ceiling = opp_data.get("forecast", {}).get("awardCeiling")
                     award_floor = opp_data.get("forecast", {}).get("awardFloor")
 
-                """if opp_desc != "No Description":
+                if opp_desc != "No Description":
                     try:
                         response = client.models.generate_content(
                             model="gemini-3-flash-preview", contents="Return only the relevant output. Given this description of a grant opportunity, summarize the description: " + opp_desc
@@ -180,7 +180,7 @@ def search():
                     except Exception as e:
                         print("Error generating summary:", e)
                         pass
-                    time.sleep(1)"""
+                    time.sleep(1)
                 
                 average_award = None
                 try:
@@ -214,7 +214,7 @@ def search():
     
     for grant in results:
         grant["relevance"] = round((grant["relevance"] / best_relevance), 2) if best_relevance > 0 else 0
-        print(f"Title: {grant['title']}, Relevance: {grant['relevance']}")
+        print(f"Title: {grant['title']}, Relevance: {grant['relevance']}")"""
     
     return render_template("results.html", results=results, title=title, description=description)
 
