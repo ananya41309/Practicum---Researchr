@@ -78,11 +78,16 @@ Allowed file types can be modified in app.py:
 
 ALLOWED_EXTENSIONS = {"pdf", "docx", "csv", "txt"}
 
-## Future Improvements
+## Future Improvements / Task Board
 
-- Grant discovery and recommendation system
-- Database integration for projects and users
-- User authentication and authorization
-- Improved file management (per-project folders, cloud storage)
-- Advanced search and filtering for grants
-- Deployment and scalability improvements
+- **GET API KEY** - Hongbo
+- Description summarization - Nick
+- Filters working - Hongbo
+- Get 10 good outputs - Nick / Hongbo  
+- General UI updates (modernization) - Ananya 
+- Display filters on sidebar + edit search feature - Ananya
+
+# Nice to Haves / Additional Task Board
+- File preview (optional - low prio)
+- Accounts - Ananya 
+  - Set up Firebase / database management - Ananya
