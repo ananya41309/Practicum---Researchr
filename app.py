@@ -2,11 +2,11 @@ import time
 
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
-import os, requests, json
+import os
 from file_parser import parse_file
 from keyword_extractor import extract_keywords
-from google import genai
-from api_key import api_key
+#from google import genai
+
 from search import search_grants
 
 #DELETE
@@ -21,7 +21,8 @@ ALLOWED_EXTENSIONS = {"pdf", "docx", "csv", "txt"}
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-client = genai.Client(api_key=api_key)
+#client = genai.Client(api_key=api_key)
+#client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -95,6 +96,8 @@ def search():
     print("----------------------\n")
 
     results = search_grants(title, description, merged_keywords)
+    
+    
     """
 
     #build json request

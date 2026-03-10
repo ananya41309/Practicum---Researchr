@@ -80,8 +80,8 @@ ALLOWED_EXTENSIONS = {"pdf", "docx", "csv", "txt"}
 
 ## Future Improvements / Task Board
 
-- **GET API KEY** - Hongbo
-- Description summarization - Nick
+~~- GET API KEY - Hongbo~~
+~~- Description summarization - Nick~~
 - Filters working - Hongbo
 - Get 10 good outputs - Nick / Hongbo  
 - General UI updates (modernization) - Ananya 

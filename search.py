@@ -7,10 +7,14 @@ import json
 import requests
 from bs4 import BeautifulSoup
 import re
+from openai import OpenAI
+from api_key import api_key
 
 search_url = "https://api.grants.gov/v1/api/search2"
 fetchOpp_url = "https://api.grants.gov/v1/api/fetchOpportunity"
 nufr_url = "https://www.northwestern.edu/foundationrelations/find-funding/funding-opportunities/"
+
+client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
 def search_grants(title, description, keywords):
     #given keyword string, we are going to search through various sources for grants that match the keywords. We will return a list of grants that match the keywords.
@@ -23,9 +27,22 @@ def search_grants(title, description, keywords):
     results.extend(nufr_grants)
     
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+    
+    for r in ranked:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant for ranking grant opportunities based on relevance to a researcher's interests."},
+                {"role": "user", "content": f"Given the following grant opportunity, title: {r['title']}, description: {r['description']}, please return a concise summary of the grant details. This summary should only written as a standard paragraph. Return only the body of the summary without any introductory phrases."}
+            ]
+        )
+        
+        summary = response.choices[0].message.content.strip()
+        r["summary"] = summary
+    
     print ("Ranked Grants:")
     for r in ranked:
-        print(r["title"], r["score"])
+        print(r["title"], r["score"], r["summary"])
     return ranked
 
 def nufr_search(keywords):
@@ -41,7 +58,6 @@ def nufr_search(keywords):
     rows = soup.select("table tr")  # adjust selector if needed
     #print(rows[1])
     data = [] # this contains all of the rows from the table
-    
 
     for row in rows[1:]:  # skip header
         
