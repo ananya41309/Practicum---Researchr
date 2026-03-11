@@ -7,7 +7,8 @@ This is a simple Flask web application that allows users to submit a research pr
 - Project title and description input
 - Multiple file uploads
 - Basic file type validation
-- Displaying search results (WIP)
+- Displaying grant search results
+- Editing search parameters 
 
 ## Planned/WIP Features
 
@@ -86,7 +87,7 @@ ALLOWED_EXTENSIONS = {"pdf", "docx", "csv", "txt"}
 - Build a strong test suite from recent grant distributions
 - Get 10 good outputs - Nick / Hongbo
 - General UI updates (modernization) - Ananya 
-- Display filters on sidebar + edit search feature - Ananya
+~~- Edit search functionality - Nick~~
 - Add corporate funding sources 
 
 # Nice to Haves / Additional Task Board
