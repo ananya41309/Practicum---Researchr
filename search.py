@@ -4,6 +4,7 @@
     The search will be done using a variety of sources and search engines. The results will be returned as a list of grants that match the keywords. 
 """
 import json
+from xml.etree.ElementPath import find
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -28,6 +29,8 @@ def search_grants(title, description, keywords, client):
     
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
     
+    
+    # generate summaries for the best results
     for r in ranked:
         response = client.chat.completions.create(
             model="deepseek-chat",
@@ -43,30 +46,32 @@ def search_grants(title, description, keywords, client):
     print ("Ranked Grants:")
     for r in ranked:
         print(r["title"], r["score"], r["summary"])
+        
     return ranked
 
 def nufr_search(keywords):
     
-    #given keywords, we are going to parse through the NU foundations relations website and find grants that match the keywords. We will return a list of grants that match the keywords.
+    """
+        given keywords, we are going to parse through the NU foundations relations website and 
+        find grants that match the keywords. We will return a list of grants that match the keywords.
+    """
+    
     headers = { "User-Agent": "Mozilla/5.0" }
 
     r = requests.get(nufr_url, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
-    #for link in soup.select("table a"):
-    #    print(link.get("href"))
         
     rows = soup.select("table tr")  # adjust selector if needed
-    #print(rows[1])
+    
     data = [] # this contains all of the rows from the table
 
     for row in rows[1:]:  # skip header
         
         # Find the hidden description container
         row_soup = BeautifulSoup(str(row), "html.parser")
-        #print(row_soup)
-        #print("----")
+        
         description_div = row_soup.select_one(".details-description")
-        #print(description_div)
+        
         # Extract only real outbound links (exclude href="#")
         link_tag = description_div.find("a", href=True)
 
@@ -77,14 +82,13 @@ def nufr_search(keywords):
         
         cells = [td.get_text(strip=True) for td in row.find_all("td")]
         if cells:
-            #print("Cells:", cells)
+            
             pattern = r"(Rolling|\d{2}/\d{2}/\d{4})\s*$"
-            #print(cells[4])
+            
             match = re.search(pattern, cells[0])
 
             if match:
                 terminal_value = match.group(1)
-                #print("Extracted:", terminal_value)
             else:
                 terminal_value = None
                 

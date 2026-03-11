@@ -74,6 +74,22 @@ def index():
 
     return render_template("index.html")
 
+@app.route("/edit-search", methods=["POST"])
+def edit_search():
+    title = request.form["title"]
+    description = request.form["description"]
+
+    # edit the keywords based on user input
+    new_keywords = request.form["keywords"].strip().split(", ")
+    
+    results = search_grants(title, description, new_keywords, client)
+    #results = search_grants(title, description, merged_keywords, client)
+    
+    if len(description) > 500:
+        description = description[:500] + "..."
+    
+    return render_template("results.html", results=results, title=title, description=description, keywords=new_keywords)
+
 @app.route("/search", methods=["POST"])
 def search():
     title = request.form["title"]
@@ -85,16 +101,15 @@ def search():
     doc_keywords = app.config.get("KEYWORDS", [])
 
     # keywords from project description
-    desc_keywords = extract_keywords(description)
+    #desc_keywords = extract_keywords(description)
 
     # merge + remove duplicates
-    merged_keywords = list(set(doc_keywords + desc_keywords))
+    #merged_keywords = list(set(doc_keywords + desc_keywords))
 
-    print("\n--- KEYWORD DEBUG ---")
-    print("Document Keywords:", doc_keywords)
-    print("Description Keywords:", desc_keywords)
-    print("Merged Keywords:", merged_keywords)
-    print("----------------------\n")
+    #print("Document Keywords:", doc_keywords)
+    #print("Description Keywords:", desc_keywords)
+    #print("Merged Keywords:", merged_keywords)
+    #print("----------------------\n")
 
     response = client.chat.completions.create(
         model="deepseek-chat",
@@ -104,7 +119,10 @@ def search():
         ]
     )
     ds_keywords = response.choices[0].message.content.strip().split()
+    
+    print("\n--- KEYWORD DEBUG ---")
     print(ds_keywords)
+    print("--------------------------------\n")
     
     results = search_grants(title, description, ds_keywords, client)
     #results = search_grants(title, description, merged_keywords, client)
@@ -112,7 +130,7 @@ def search():
     if len(description) > 500:
         description = description[:500] + "..."
     
-    return render_template("results.html", results=results, title=title, description=description)
+    return render_template("results.html", results=results, title=title, description=description, keywords=ds_keywords)
 
 if __name__ == "__main__":
     app.run(debug=True)
