@@ -29,7 +29,6 @@ def search_grants(title, description, keywords, client):
     
     ranked = sorted(results, key=lambda x: x["score"], reverse=True)
     
-    
     # generate summaries for the best results
     for r in ranked:
         response = client.chat.completions.create(
@@ -42,6 +41,7 @@ def search_grants(title, description, keywords, client):
         
         summary = response.choices[0].message.content.strip()
         r["summary"] = summary
+        #r["summary"] = ""
     
     print ("Ranked Grants:")
     for r in ranked:

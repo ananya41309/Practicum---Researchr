@@ -83,12 +83,12 @@ def edit_search():
     new_keywords = request.form["keywords"].strip().split(", ")
     
     results = search_grants(title, description, new_keywords, client)
-    #results = search_grants(title, description, merged_keywords, client)
     
     if len(description) > 500:
         description = description[:500] + "..."
-    
-    return render_template("results.html", results=results, title=title, description=description, keywords=new_keywords)
+    app.config["RESULTS"] = results
+    app.config["KEYWORDS"] = new_keywords
+    return redirect(url_for("search_results", proj_title=title, proj_description=description))
 
 @app.route("/search", methods=["POST"])
 def search():
@@ -115,7 +115,7 @@ def search():
         model="deepseek-chat",
         messages=[
             {"role": "system", "content": "You are a helpful assistant for ranking grant opportunities based on relevance to a researcher's interests."},
-            {"role": "user", "content": f"Given these details about the research project: {title} {description} {file_text}, please generate a list of the top 10 keywords that best represent the researcher's interests and the project focus. These keywords will be used to search for relevant grant opportunities. Please return only the keywords in a list format without any additional text or explanation, separated only by spaces."}
+            {"role": "user", "content": f"Given these details about the research project: {title} {description} {file_text}, please generate a list of 10 keywords that best represent the researcher's interests and the project focus taken directly from the project description and text. These keywords will be used to search for relevant grant opportunities. Please return only the keywords in a list format without any additional text or explanation, separated only by spaces. If there are fewer than 10 relevant keywords, return as many as you can."}
         ]
     )
     ds_keywords = response.choices[0].message.content.strip().split()
@@ -123,14 +123,25 @@ def search():
     print("\n--- KEYWORD DEBUG ---")
     print(ds_keywords)
     print("--------------------------------\n")
-    
+    app.config["KEYWORDS"] = ds_keywords
     results = search_grants(title, description, ds_keywords, client)
-    #results = search_grants(title, description, merged_keywords, client)
     
+    app.config["RESULTS"] = results
     if len(description) > 500:
         description = description[:500] + "..."
+    print(description)
+    print(ds_keywords)
+    return redirect(url_for("search_results", proj_title=title, proj_description=description))
+
+@app.route("/results")
+def search_results():
+    title = request.args.get('proj_title', '')
+    description = request.args.get('proj_description', '')
+    results = app.config.get("RESULTS", None)
+    keywords = app.config.get("KEYWORDS", [])
+    keywords_str = ", ".join(keywords)
     
-    return render_template("results.html", results=results, title=title, description=description, keywords=ds_keywords)
+    return render_template("results.html", results=results, title=title, description=description, keywords=keywords_str)
 
 if __name__ == "__main__":
     app.run(debug=True)
