@@ -79,17 +79,6 @@ Allowed file types can be modified in app.py:
 
 ALLOWED_EXTENSIONS = {"pdf", "docx", "csv", "txt"}
 
-## Future Improvements / Task Board
-
-~~- GET API KEY - Hongbo~~
-~~- Description summarization - Nick~~
-- Filters working - Hongbo
-- Build a strong test suite from recent grant distributions
-- Get 10 good outputs - Nick / Hongbo
-- General UI updates (modernization) - Ananya 
-~~- Edit search functionality - Nick~~
-- Add corporate funding sources 
-
 # Nice to Haves / Additional Task Board
 - File preview
 - Accounts - Ananya 
