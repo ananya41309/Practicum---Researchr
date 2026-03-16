@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MatchMaker — Sign In</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<div class="login-page">
+
+  <!-- Left — Brand Panel -->
+  <div class="login-brand">
+    <div class="login-brand-inner">
+
+      <div class="login-logo">
+        <div class="login-logo-icon">M</div>
+        <span class="login-logo-text">MatchMaker</span>
+      </div>
+
+      <h1 class="login-headline">
+        Your research deserves<br>the <em>right</em> funding
+      </h1>
+
+      <p class="login-tagline">
+        Most researchers receive funding that doesn't align with their work.
+        MatchMaker exists to fix that — we match your research to the opportunities
+        that are actually right for you.
+      </p>
+
+      <ul class="login-features">
+        <li><span class="feat-dot"></span> Precise matching across thousands of grants</li>
+        <li><span class="feat-dot"></span> Federal, state, private and foundation opportunities</li>
+        <li><span class="feat-dot"></span> Keyword refinement to tune your results</li>
+        <li><span class="feat-dot"></span> Document parsing — PDF, DOCX, CSV, TXT</li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- Right — Form Panel -->
+  <div class="login-form-panel">
+    <div class="login-form-box">
+
+      <h2 class="login-form-title">Welcome back</h2>
+      <p class="login-form-sub">Sign in to your MatchMaker account</p>
+
+      <form method="POST" action="{{ url_for('login') }}">
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="text" id="email" name="email" placeholder="you@university.edu" />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" />
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-bottom:24px;">
+          <a href="#" style="font-size:0.8rem; color:var(--accent); text-decoration:none; font-weight:500;">
+            Forgot password?
+          </a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          Sign in to MatchMaker
+        </button>
+
+      </form>
+
+      <p style="text-align:center; margin-top:24px; font-size:0.82rem; color:var(--text-3);">
+        Don't have an account?
+        <a href="#" style="color:var(--accent); font-weight:600; text-decoration:none;">Request access</a>
+      </p>
+
+      <div style="margin-top:40px; padding-top:24px; border-top:1px solid var(--border);">
+        <p style="font-size:0.72rem; color:var(--text-3); text-align:center; line-height:1.6;">
+          Built for university researchers · Precision grant matching
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -2,200 +2,253 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MatchMaker's Grant Search Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results — {{ title }} | MatchMaker</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
-  <div class="container">
-    <button class="btn" id="scrollTopBtn">Scroll to Top ↑</button>
-    <button class="btn" id="scrollBottomBtn">Scroll to Bottom ↓</button>
+  <!-- Top Navigation -->
+  <nav class="app-nav">
+    <a class="nav-brand" href="{{ url_for('index') }}">
+      <div class="nav-logo-icon">M</div>
+      <span class="nav-logo-text">MatchMaker</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}" class="active">Search</a></li>
+      <li><a href="{{ url_for('saved') }}">Saved Grants</a></li>
+      <li><a href="{{ url_for('profile') }}">Profile</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="{{ url_for('profile') }}" class="nav-avatar" title="Your profile">JD</a>
+    </div>
+  </nav>
 
-    <h1>Recommended Grants for "{{ title }}"</h1>
+  <button class="scroll-btn" id="scrollTopBtn" title="Back to top">&#8593;</button>
+  <button class="scroll-btn" id="scrollBottomBtn" title="Jump to bottom">&#8595;</button>
 
-    <p class="subtitle">
-      Based on your project description, the following grants may be relevant.
-    </p>
-    <p class="subtitle">
-      <b>Description:</b> {{ description }}
-    </p>
+  <main class="page-shell">
+
+    <!-- Results Header -->
+    <div class="results-topbar">
+      <div>
+        <p class="results-heading-label">Search Results</p>
+        <h1 class="results-heading">Grants matched for <em>{{ title }}</em></h1>
+        {% if results and results|length > 0 %}
+          <span class="results-count-badge">{{ results|length }} opportunit{{ 'ies' if results|length != 1 else 'y' }} found</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="description-banner">
+      <strong style="font-style:normal; color:var(--text-2);">Your project: </strong>{{ description }}
+    </div>
 
     {% if results and results|length > 0 %}
       <ul class="results-list">
         {% for result in results %}
-          <li class="result-card">
-            <h2 class="grant-title">{{ result.title }}</h2>
+          <li class="result-card" id="card-{{ loop.index }}">
+            <div class="card-inner">
 
-            <!--<p class="relevance">
-              Relevance score: {{ result.score }}
-            </p>-->
-            <p><b>Open Date:</b> {{ result.openDate }} <b>Close Date:</b> {{ result.closeDate }}</p>
-
-            <!-- Show award range if available -->
-            {% if result.award_floor != "none" or result.award_ceiling != "none" %}
-              <p><strong>Award Range:</strong>
-                {% if result.award_floor and result.award_floor != "none"%}
-                  ${{ (result.award_floor | int // 1000) }}K
-                {% else %}
-                  N/A
+              <div class="card-head">
+                <h2 class="grant-title">{{ result.title }}</h2>
+                {% if result.award_floor != "none" or result.award_ceiling != "none" or result.amount != "none" %}
+                  <span class="award-badge">
+                    {% if result.award_floor and result.award_floor != "none" %}${{ (result.award_floor | int // 1000) }}K{% else %}N/A{% endif %}
+                    –
+                    {% if result.award_ceiling and result.award_ceiling != "none" %}${{ (result.award_ceiling | int // 1000) }}K{% elif result.amount and result.amount != "none" %}{{ result.amount }}{% else %}N/A{% endif %}
+                  </span>
                 {% endif %}
-                –
-                {% if result.award_ceiling and result.award_ceiling != "none"%}
-                  ${{ (result.award_ceiling | int // 1000) }}K
-                {% else %}
-                  N/A
-                {% endif %}
-              </p>
-            {% else %}
-              {% if result.amount != "none"%}
-              <p>
-                <strong>Award Range: </strong>{{ result.amount }}
-              </p>
-              {% else %}
-              <p><strong>Award Range:</strong> N/A</p>
-              {% endif %}
-
-            {% endif %}
-
-            <div class="description-wrapper">
-              <div class="grant-description">
-                {{ result.summary | safe}}
               </div>
-              <div class="fade"></div>
+
+              <div class="card-meta">
+                <span class="meta-pill"><strong>Opens</strong>&nbsp;{{ result.openDate }}</span>
+                <span class="meta-pill"><strong>Closes</strong>&nbsp;{{ result.closeDate }}</span>
+              </div>
+
+              <div class="card-divider"></div>
+
+              <div class="description-wrapper">
+                <div class="grant-description">{{ result.summary | safe }}</div>
+                <div class="fade"></div>
+              </div>
+
+              <div class="card-footer">
+                <button class="read-more-btn" onclick="toggleDescription(this)">Read more</button>
+                <div class="card-actions">
+                  <button class="btn-save" onclick="saveGrant(this)"
+                    data-title="{{ result.title }}"
+                    data-open="{{ result.openDate }}"
+                    data-close="{{ result.closeDate }}"
+                    data-url="{{ result.url }}"
+                    data-award-floor="{{ result.award_floor }}"
+                    data-award-ceiling="{{ result.award_ceiling }}"
+                    data-amount="{{ result.amount }}">
+                    Save Grant
+                  </button>
+                  <button class="apply-button" onclick="window.open('{{ result.url }}', '_blank')">
+                    View Grant Details
+                  </button>
+                </div>
+              </div>
+
             </div>
-            <button class="read-more-btn" onclick="toggleDescription(this)">Read more</button>
-            <button class="apply-button" onclick="window.open('{{ result.url }}', '_blank')">
-              View Grant Details
-            </button>
           </li>
         {% endfor %}
       </ul>
+
     {% else %}
-      <p>No relevant grants were found for this project.</p>
-    {% endif %}
-    
-    <p class="explanation">
-      Matched based on similarity between your project description and the grant abstract.
-    </p>
-
-    <form class="project-form" method="POST" enctype="multipart/form-data" action="{{ url_for('edit_search') }}">
-
-      <input type="hidden" id="title" name="title" value="{{ title }}" required />
-      <input type="hidden" id="description" name="description" value="{{ description }}" required />
-      <h2>Edit Your Search</h2>
-      
-      <label for="keywords">Edit Keywords (comma-separated)</label>
-      <p class="explanation">
-        Based on your project description, we have extracted the following keywords. You can edit these keywords to refine your search and find more relevant grants.
-    </p>
-      <textarea id="keywords" name="keywords" rows="3" placeholder="Edit keywords (comma-separated)">{{ keywords }}</textarea>
-
-      <!-- Filter Section -->
-      <button type="button" id="filterToggle" class="btn action-btn filter-btn">Edit Filters</button>
-
-      <!-- Selected Filter Chips -->
-      <div id="activeFilters" class="active-filters"></div>
-
-      <!-- Sort + Submit Row -->
-      <div class="sort-submit-row">
-        <select id="sortOptions" class="sort-dropdown">
-          <option value="relevance" selected>Sort by: Relevance</option>
-          <option value="open_status">Status (Open first)</option>
-          <option value="deadline">Deadline</option>
-        </select>
-
-        <button type="submit" class="btn action-btn search-btn">
-          Re-run Search
-        </button>
+      <div class="empty-state">
+        <h3 class="empty-title">No grants found</h3>
+        <p class="empty-sub">Try editing your keywords or adjusting your filters below.</p>
       </div>
+    {% endif %}
 
+    <!-- Refine Search -->
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('edit_search') }}">
+      <input type="hidden" name="title" value="{{ title }}" />
+      <input type="hidden" name="description" value="{{ description }}" />
+
+      <div class="refine-card">
+        <div class="refine-head">
+          <h2>Refine Your Search</h2>
+        </div>
+        <div class="refine-body">
+
+          <div class="field">
+            <label for="keywords">Keywords</label>
+            <p class="keywords-hint">
+              Extracted from your project description. Edit these to tune your results — use comma-separated terms.
+            </p>
+            <textarea id="keywords" name="keywords" rows="3">{{ keywords }}</textarea>
+          </div>
+
+          <div class="form-divider"></div>
+
+          <div class="filter-grid">
+            <div>
+              <span class="filter-col-label">Status</span>
+              <label class="check-option"><input type="checkbox" name="status" value="open"> Open</label>
+              <label class="check-option"><input type="checkbox" name="status" value="forecast"> Forecasted</label>
+              <label class="check-option"><input type="checkbox" name="status" value="archived"> Archived</label>
+            </div>
+            <div>
+              <span class="filter-col-label">Funding Source</span>
+              <label class="check-option"><input type="checkbox" name="source" value="federal"> Federal</label>
+              <label class="check-option"><input type="checkbox" name="source" value="non-federal"> Non-Federal</label>
+            </div>
+            <div>
+              <span class="filter-col-label">Number of Results</span>
+              <label class="check-option"><input type="radio" name="num_results" value="10"> 10 results</label>
+              <label class="check-option"><input type="radio" name="num_results" value="25" checked> 25 results</label>
+            </div>
+          </div>
+
+          <div class="form-divider"></div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Award Amount — Min ($)</label>
+              <input type="text" name="award_min" placeholder="e.g. 10,000" />
+            </div>
+            <div class="field">
+              <label>Award Amount — Max ($)</label>
+              <input type="text" name="award_max" placeholder="e.g. 500,000" />
+            </div>
+          </div>
+
+          <div id="activeFilters" class="active-filters"></div>
+
+          <div class="action-row" style="margin-top:20px;">
+            <div class="sort-wrap">
+              <select name="sort">
+                <option value="relevance" selected>Sort by: Relevance</option>
+                <option value="deadline">Sort by: Deadline</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-search">
+              Re-run Search
+            </button>
+          </div>
+
+        </div>
+      </div>
     </form>
 
-    <div class="actions">
-      <a href="{{ url_for('index') }}" class="back-link">
-        ← Back to project submission
-      </a>
+    <div class="page-foot">
+      <a href="{{ url_for('index') }}" class="back-link">← Start a new search</a>
+      <span class="foot-note">Matched by semantic similarity to your project description</span>
     </div>
 
-    <aside id="filtersSidebar" class="filters-sidebar hidden">
-    <h3>Filters</h3>
+  </main>
 
-    <div class="filter-section">
-      <p class="filter-title">Status</p>
-      <label><input type="checkbox" name="status" value="open"> Open</label>
-      <label><input type="checkbox" name="status" value="forecast"> Forecast</label>
-    </div>
-
-    <div class="filter-section">
-      <p class="filter-title">Eligibility</p>
-      <label><input type="checkbox" name="eligibility" value="federal"> Federal</label>
-      <label><input type="checkbox" name="eligibility" value="state"> State</label>
-      <label><input type="checkbox" name="eligibility" value="private"> Private</label>
-    </div>
-
-    <div class="filter-section">
-      <p class="filter-title">Category</p>
-      <label><input type="checkbox" name="category" value="science"> Science</label>
-      <label><input type="checkbox" name="category" value="education"> Education</label>
-      <label><input type="checkbox" name="category" value="health"> Health</label>
-    </div>
-
-    <button id="applyFilters" class="btn apply-btn">Apply Filters</button>
-  </aside>
-  </div>
   <script>
-
-    const filterToggleBtn = document.getElementById('filterToggle');
-    const filtersSidebar = document.getElementById('filtersSidebar');
-    const activeFiltersDiv = document.getElementById('activeFilters');
-
-    filterToggleBtn.onclick = () => {
-      filtersSidebar.classList.toggle('hidden');
-    };
-
-    document.getElementById('applyFilters').onclick = () => {
-      activeFiltersDiv.innerHTML = '';
-      const checkedBoxes = document.querySelectorAll('aside input[type="checkbox"]:checked');
-
-      checkedBoxes.forEach(box => {
-        const chip = document.createElement('span');
-        chip.className = 'filter-chip';
-        chip.textContent = `${box.name}: ${box.value}`;
-        activeFiltersDiv.appendChild(chip);
-      });
-
-      filtersSidebar.classList.add('hidden');
-    };
-    
     function toggleDescription(btn) {
-      const card = btn.closest(".result-card");
-      const description = card.querySelector(".grant-description");
-      const fade = card.querySelector(".fade");
-      const isExpanded = description.classList.toggle("expanded");
-
-      if (!isExpanded) {
-        card.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-      }
-
-      if (fade) fade.style.opacity = isExpanded ? "0" : "1";
-      btn.textContent = isExpanded ? "Read less" : "Read more";
+      const card = btn.closest('.result-card');
+      const desc = card.querySelector('.grant-description');
+      const fade = card.querySelector('.fade');
+      const expanded = desc.classList.toggle('expanded');
+      if (!expanded) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (fade) fade.style.opacity = expanded ? '0' : '1';
+      btn.textContent = expanded ? 'Read less' : 'Read more';
     }
-    document.getElementById("scrollTopBtn").onclick = function () {
-      window.scrollTo({
-          top: 0,
-          behavior: "smooth"
+
+    function saveGrant(btn) {
+      const grant = {
+        title:        btn.dataset.title,
+        openDate:     btn.dataset.open,
+        closeDate:    btn.dataset.close,
+        url:          btn.dataset.url,
+        awardFloor:   btn.dataset.awardFloor,
+        awardCeiling: btn.dataset.awardCeiling,
+        amount:       btn.dataset.amount,
+        savedAt:      new Date().toISOString()
+      };
+
+      let saved = JSON.parse(localStorage.getItem('savedGrants') || '[]');
+      const exists = saved.find(g => g.title === grant.title);
+      if (exists) {
+        btn.textContent = 'Already saved';
+        btn.classList.add('btn-save-done');
+        return;
+      }
+      saved.push(grant);
+      localStorage.setItem('savedGrants', JSON.stringify(saved));
+      btn.textContent = 'Saved';
+      btn.classList.add('btn-save-done');
+    }
+
+    // Restore saved state on page load
+    window.addEventListener('load', function() {
+      let saved = JSON.parse(localStorage.getItem('savedGrants') || '[]');
+      document.querySelectorAll('.btn-save').forEach(function(btn) {
+        if (saved.find(g => g.title === btn.dataset.title)) {
+          btn.textContent = 'Saved';
+          btn.classList.add('btn-save-done');
+        }
       });
+    });
+
+    document.getElementById('scrollTopBtn').onclick = function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    document.getElementById('scrollBottomBtn').onclick = function() {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     };
 
-    document.getElementById("scrollBottomBtn").onclick = function () {
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth"
+    document.querySelectorAll('.filter-grid input[type="checkbox"]').forEach(function(box) {
+      box.addEventListener('change', function() {
+        const div = document.getElementById('activeFilters');
+        div.innerHTML = '';
+        document.querySelectorAll('.filter-grid input[type="checkbox"]:checked').forEach(function(c) {
+          const chip = document.createElement('span');
+          chip.className = 'filter-chip';
+          chip.textContent = c.name + ': ' + c.value;
+          div.appendChild(chip);
         });
-    };
+      });
+    });
   </script>
+
 </body>
 </html>

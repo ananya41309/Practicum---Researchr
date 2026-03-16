@@ -15,6 +15,20 @@ from search import search_grants
 #from demodata import grants
 
 app = Flask(__name__)
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        return render_template("index.html")
+    return render_template("login.html")
+
+@app.route("/saved")
+def saved():
+    return render_template("saved.html")
+
+@app.route("/profile")
+def profile():
+    return render_template("profile.html")
+
 search_url = "https://api.grants.gov/v1/api/search2"
 fetchOpp_url = "https://api.grants.gov/v1/api/fetchOpportunity"
 
@@ -52,7 +66,10 @@ def compute_relevance(grant_text, keywords):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    if request.method == "GET":
+        return redirect(url_for("login"))
     if request.method == "POST":
+
         title = request.form.get("title")
         description = request.form.get("description")
         files = request.files.getlist("files")

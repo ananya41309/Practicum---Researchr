@@ -2,145 +2,200 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>MatchMaker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MatchMaker — Find Funding</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-
 <body>
-  <div class="container">
-    <h1>MatchMaker</h1>
-    <p class="subtitle">
-      Describe your research project and upload files — we’ll match you with relevant funding opportunities!
-    </p>
 
+  <!-- Top Navigation -->
+  <nav class="app-nav">
+    <a class="nav-brand" href="{{ url_for('index') }}">
+      <div class="nav-logo-icon">M</div>
+      <span class="nav-logo-text">MatchMaker</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}" class="active">Search</a></li>
+      <li><a href="{{ url_for('saved') }}">Saved Grants</a></li>
+      <li><a href="{{ url_for('profile') }}">Profile</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <a href="{{ url_for('profile') }}" class="nav-avatar" title="Your profile">JD</a>
+    </div>
+  </nav>
+
+  <main class="page-shell">
+
+    <!-- Hero Banner -->
+    <div class="submit-hero">
+      <div class="submit-hero-inner">
+        <p class="hero-eyebrow">Grant Discovery</p>
+        <h1 class="hero-title">Find funding that fits your <em>research</em></h1>
+        <p class="hero-sub">
+          Most researchers receive funding that doesn't align with their work.
+          MatchMaker exists to fix that — we match your research to the opportunities
+          that are actually right for you.
+        </p>
+      </div>
+    </div>
+
+    <!-- Search Form -->
     <form class="project-form" method="POST" enctype="multipart/form-data" action="{{ url_for('search') }}">
 
-      <div class="form-group">
-        <label for="title">Project Title</label>
-        <input type="text" id="title" name="title" required />
+      <!-- Step 1 — Project Details -->
+      <div class="form-card">
+        <div class="form-card-head">
+          <span class="step-pill">Step 1</span>
+          <h2>Describe your project</h2>
+        </div>
+        <div class="form-body">
+          <div class="field">
+            <label for="title">Project Title</label>
+            <input type="text" id="title" name="title"
+              placeholder="e.g. Machine Learning for Early Cancer Detection" required />
+          </div>
+          <div class="field">
+            <label for="description">Project Description</label>
+            <textarea id="description" name="description" rows="6"
+              placeholder="Describe your research goals, methods, and expected outcomes. The more detail you provide, the better your grant matches will be." required></textarea>
+            <span class="field-hint">Aim for 100–300 words for best results.</span>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="description">Project Description</label>
-        <textarea id="description" name="description" rows="6" required></textarea>
+      <!-- Step 2 — Documents -->
+      <div class="form-card">
+        <div class="form-card-head">
+          <span class="step-pill">Step 2</span>
+          <h2>Upload supporting documents</h2>
+          <span class="head-optional">Optional</span>
+        </div>
+        <div class="form-body">
+          <div class="upload-zone">
+            <input type="file" id="files" name="files" accept=".pdf,.doc,.docx,.txt,.csv" multiple />
+            <div class="upload-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <p class="upload-text"><strong>Click to browse</strong> or drag and drop files here</p>
+            <p class="upload-formats">PDF &nbsp;·&nbsp; DOCX &nbsp;·&nbsp; TXT &nbsp;·&nbsp; CSV</p>
+          </div>
+          <div id="fileList"></div>
+        </div>
       </div>
 
-      <div class="form-group file-upload-group">
-        <label for="files" class="upload-label">Upload Relevant Documents</label>
-        <input type="file" id="files" name="files" accept=".pdf,.doc,.docx,.txt,.csv" multiple />
-        <small>PDF, DOCX, CSV, TXT</small>
+      <!-- Step 3 — Filters & Sort -->
+      <div class="form-card">
+        <div class="form-card-head">
+          <span class="step-pill">Step 3</span>
+          <h2>Filters and sort options</h2>
+        </div>
+        <div class="form-body">
 
-      </div>
-      
-      <div class="form-group"id="fileList"></div>
+          <div class="filter-grid">
 
-      <!-- Filter Section -->
-      <button type="button" id="filterToggle" class="btn action-btn filter-btn">Filters</button>
+            <div>
+              <span class="filter-col-label">Status</span>
+              <label class="check-option"><input type="checkbox" name="status" value="open"> Open</label>
+              <label class="check-option"><input type="checkbox" name="status" value="forecast"> Forecasted</label>
+              <label class="check-option"><input type="checkbox" name="status" value="archived"> Archived</label>
+            </div>
 
-      <!-- Selected Filter Chips -->
-      <div id="activeFilters" class="active-filters"></div>
+            <div>
+              <span class="filter-col-label">Funding Source</span>
+              <label class="check-option"><input type="checkbox" name="source" value="federal"> Federal</label>
+              <label class="check-option"><input type="checkbox" name="source" value="non-federal"> Non-Federal</label>
+            </div>
 
-      <!-- Sort + Submit Row -->
-      <div class="sort-submit-row">
-        <select id="sortOptions" class="sort-dropdown">
-          <option value="relevance" selected>Sort by: Relevance</option>
-          <option value="open_status">Status (Open first)</option>
-          <option value="deadline">Deadline</option>
-        </select>
+            <div>
+              <span class="filter-col-label">Number of Results</span>
+              <label class="check-option"><input type="radio" name="num_results" value="10"> 10 results</label>
+              <label class="check-option"><input type="radio" name="num_results" value="25" checked> 25 results</label>
+            </div>
 
-        <button type="submit" class="btn action-btn search-btn">
-          Search Funds
-        </button>
+          </div>
+
+          <div class="form-divider"></div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Award Amount — Min ($)</label>
+              <input type="text" name="award_min" placeholder="e.g. 10,000" />
+            </div>
+            <div class="field">
+              <label>Award Amount — Max ($)</label>
+              <input type="text" name="award_max" placeholder="e.g. 500,000" />
+            </div>
+          </div>
+
+          <div id="activeFilters" class="active-filters"></div>
+
+          <div class="action-row">
+            <div class="sort-wrap">
+              <select name="sort">
+                <option value="relevance" selected>Sort by: Relevance</option>
+                <option value="deadline">Sort by: Deadline</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-search" id="submitBtn">
+              Search Funding Opportunities
+            </button>
+          </div>
+
+        </div>
       </div>
 
     </form>
-  </div>
-
-  <!-- Filters Sidebar / Modal -->
-  <aside id="filtersSidebar" class="filters-sidebar hidden">
-    <h3>Filters</h3>
-
-    <div class="filter-section">
-      <p class="filter-title">Status</p>
-      <label><input type="checkbox" name="status" value="open"> Open</label>
-      <label><input type="checkbox" name="status" value="forecast"> Forecast</label>
-    </div>
-
-    <div class="filter-section">
-      <p class="filter-title">Eligibility</p>
-      <label><input type="checkbox" name="eligibility" value="federal"> Federal</label>
-      <label><input type="checkbox" name="eligibility" value="state"> State</label>
-      <label><input type="checkbox" name="eligibility" value="private"> Private</label>
-    </div>
-
-    <div class="filter-section">
-      <p class="filter-title">Category</p>
-      <label><input type="checkbox" name="category" value="science"> Science</label>
-      <label><input type="checkbox" name="category" value="education"> Education</label>
-      <label><input type="checkbox" name="category" value="health"> Health</label>
-    </div>
-
-    <button id="applyFilters" class="btn apply-btn">Apply Filters</button>
-  </aside>
+  </main>
 
   <script>
-    // Show/hide filters sidebar and update filter chips
-    const filterToggleBtn = document.getElementById('filterToggle');
-    const filtersSidebar = document.getElementById('filtersSidebar');
-    const activeFiltersDiv = document.getElementById('activeFilters');
-
-    filterToggleBtn.onclick = () => {
-      filtersSidebar.classList.toggle('hidden');
-    };
-
-    document.getElementById('applyFilters').onclick = () => {
-      activeFiltersDiv.innerHTML = '';
-      const checkedBoxes = document.querySelectorAll('aside input[type="checkbox"]:checked');
-
-      checkedBoxes.forEach(box => {
-        const chip = document.createElement('span');
-        chip.className = 'filter-chip';
-        chip.textContent = `${box.name}: ${box.value}`;
-        activeFiltersDiv.appendChild(chip);
-      });
-
-      filtersSidebar.classList.add('hidden');
-    };
-
-    function returnFileSize(number) {
-      if (number < 1024) {
-          return number + ' bytes';
-      } else if (number >= 1024 && number < 1048576) {
-          return (number / 1024).toFixed(1) + ' KB';
-      } else if (number >= 1048576) {
-          return (number / 1048576).toFixed(1) + ' MB';
-      } else {
-          return (number / 1073741824).toFixed(1) + ' GB';
-      }
+    function returnFileSize(n) {
+      if (n < 1024) return n + ' bytes';
+      if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+      if (n < 1073741824) return (n / 1048576).toFixed(1) + ' MB';
+      return (n / 1073741824).toFixed(1) + ' GB';
     }
 
-    document.getElementById("files").addEventListener("change", function(event) {
-            const files = event.target.files;
-            const fileList = document.getElementById("fileList");
+    document.getElementById('files').addEventListener('change', function(e) {
+      const files = e.target.files;
+      const fileList = document.getElementById('fileList');
+      fileList.innerHTML = '';
+      if (files.length === 0) return;
+      const header = document.createElement('p');
+      header.className = 'file-list-header';
+      header.textContent = files.length + ' file' + (files.length > 1 ? 's' : '') + ' selected';
+      fileList.appendChild(header);
+      const chips = document.createElement('div');
+      chips.className = 'file-chips';
+      for (let i = 0; i < files.length; i++) {
+        const chip = document.createElement('div');
+        chip.className = 'file-chip';
+        chip.innerHTML = '<span class="file-chip-dot"></span><span>' + files[i].name + '</span><span class="file-chip-size">' + returnFileSize(files[i].size) + '</span>';
+        chips.appendChild(chip);
+      }
+      fileList.appendChild(chips);
+    });
 
-            // Clear previous list
-            fileList.innerHTML = "";
-            if (files.length > 1) {
-              
-              const header = document.createElement("label");
-              header.textContent = "Selected Files:";
-              fileList.appendChild(header);
-              const ul = document.createElement("ul");
-              for (let i = 0; i < files.length; i++) {
-                const li = document.createElement("li");
-                li.textContent = files[i].name + " (" + returnFileSize(files[i].size) + ")";
-                ul.appendChild(li);
-              }
-              fileList.appendChild(ul);
-            }
-            
-            
+    document.querySelectorAll('.filter-grid input[type="checkbox"]').forEach(function(box) {
+      box.addEventListener('change', function() {
+        const div = document.getElementById('activeFilters');
+        div.innerHTML = '';
+        document.querySelectorAll('.filter-grid input[type="checkbox"]:checked').forEach(function(c) {
+          const chip = document.createElement('span');
+          chip.className = 'filter-chip';
+          chip.textContent = c.name + ': ' + c.value;
+          div.appendChild(chip);
         });
+      });
+    });
+
+    document.querySelector('.project-form').addEventListener('submit', function() {
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = 'Searching...';
+      btn.style.opacity = '0.7';
+      btn.style.pointerEvents = 'none';
+    });
   </script>
 
 </body>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saved Grants | MatchMaker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+  <nav class="app-nav">
+    <a class="nav-brand" href="{{ url_for('index') }}">
+      <div class="nav-logo-icon">M</div>
+      <span class="nav-logo-text">MatchMaker</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}">Search</a></li>
+      <li><a href="{{ url_for('saved') }}" class="active">Saved Grants</a></li>
+      <li><a href="{{ url_for('profile') }}">Profile</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="{{ url_for('profile') }}" class="nav-avatar" title="Your profile">JD</a>
+    </div>
+  </nav>
+
+  <main class="page-shell">
+
+    <div class="results-topbar">
+      <div>
+        <p class="results-heading-label">Your Library</p>
+        <h1 class="results-heading">Saved Grants</h1>
+      </div>
+    </div>
+
+    <div id="savedContainer">
+      <!-- Populated by JS -->
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display:none;">
+      <h3 class="empty-title">No saved grants yet</h3>
+      <p class="empty-sub">When you find a grant you like, click "Save Grant" on the results page and it will appear here.</p>
+      <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top:20px; display:inline-flex;">
+        Start a new search
+      </a>
+    </div>
+
+  </main>
+
+  <script>
+    function formatAward(floor, ceiling, amount) {
+      const hasFloor   = floor && floor !== 'none' && floor !== 'undefined';
+      const hasCeiling = ceiling && ceiling !== 'none' && ceiling !== 'undefined';
+      const hasAmount  = amount && amount !== 'none' && amount !== 'undefined';
+      if (hasFloor || hasCeiling) {
+        const lo = hasFloor   ? '$' + Math.floor(parseInt(floor)   / 1000) + 'K' : 'N/A';
+        const hi = hasCeiling ? '$' + Math.floor(parseInt(ceiling) / 1000) + 'K' : 'N/A';
+        return lo + ' – ' + hi;
+      }
+      if (hasAmount) return amount;
+      return 'N/A';
+    }
+
+    function unsaveGrant(title) {
+      let saved = JSON.parse(localStorage.getItem('savedGrants') || '[]');
+      saved = saved.filter(g => g.title !== title);
+      localStorage.setItem('savedGrants', JSON.stringify(saved));
+      renderSaved();
+    }
+
+    function renderSaved() {
+      const saved = JSON.parse(localStorage.getItem('savedGrants') || '[]');
+      const container = document.getElementById('savedContainer');
+      const emptyState = document.getElementById('emptyState');
+
+      if (saved.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      const countBar = '<div class="results-count-bar"><span class="results-count">Showing <strong>' + saved.length + '</strong> saved grant' + (saved.length !== 1 ? 's' : '') + '</span></div>';
+
+      const cards = saved.map(function(grant) {
+        return `
+          <li class="result-card">
+            <div class="card-inner">
+              <div class="card-head">
+                <h2 class="grant-title">${grant.title}</h2>
+                <span class="award-badge">${formatAward(grant.awardFloor, grant.awardCeiling, grant.amount)}</span>
+              </div>
+              <div class="card-meta">
+                <span class="meta-pill"><strong>Opens</strong>&nbsp;${grant.openDate}</span>
+                <span class="meta-pill"><strong>Closes</strong>&nbsp;${grant.closeDate}</span>
+                <span class="meta-pill">Saved ${new Date(grant.savedAt).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}</span>
+              </div>
+              <div class="card-divider"></div>
+              <div class="card-footer">
+                <button class="btn-save btn-save-done" onclick="unsaveGrant('${grant.title.replace(/'/g, "\\'")}')">
+                  Remove
+                </button>
+                <div class="card-actions">
+                  <button class="apply-button" onclick="window.open('${grant.url}', '_blank')">
+                    View Grant Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          </li>
+        `;
+      }).join('');
+
+      container.innerHTML = countBar + '<ul class="results-list">' + cards + '</ul>';
+    }
+
+    renderSaved();
+  </script>
+
+</body>
+</html>
