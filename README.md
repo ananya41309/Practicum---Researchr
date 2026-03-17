@@ -1,29 +1,23 @@
 # MatchMaker
 
-> Connecting researchers with the funding they actually deserve.
+> Matching your research to the funding built for it.
 
-Most researchers receive funding that doesn't align with their work. MatchMaker exists to fix that — describe your research project, upload supporting documents, and MatchMaker returns a ranked list of grant opportunities that are actually right for you.
-
----
+Most researchers receive funding that doesn't align with their work. MatchMaker exists to fix that - describe your research project, upload supporting documents, and MatchMaker returns a ranked list of grant opportunities that are actually right for you.
 
 ## Features
 
 - Grant search across grants.gov and Northwestern University Foundation Relations
-- Results ranked by relevance to your project
+- Results ranked by relevance to your project, or sorted by deadline
 - Keyword refinement to tune results after your first search
 - Filter by status, funding source, and award amount
 - Save grants to a personal list
 - User profile page
 
----
-
 ## Tech Stack
 
 - Python 3 / Flask
 - DeepSeek API for keyword extraction and ranking
-- HTML / CSS / Vanilla JavaScript
-
----
+- HTML / CSS / JavaScript
 
 ## Setup
 
@@ -64,8 +58,6 @@ python app.py
 
 Open `http://127.0.0.1:5000` in your browser. Enter any email and password to log in.
 
----
-
 ## Routes
 
 | Route | Description |
@@ -78,15 +70,10 @@ Open `http://127.0.0.1:5000` in your browser. Enter any email and password to lo
 | `/saved` | Saved grants |
 | `/profile` | User profile |
 
----
-
 ## Notes
 
 - Login is a placeholder — any credentials will work
 - Saved grants are stored in browser localStorage, not a database
-- Filters are UI-only and not yet wired into the backend search
-
----
 
 ## Team
 
