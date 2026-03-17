@@ -2,7 +2,7 @@
 
 > Matching your research to the funding built for it.
 
-Most researchers receive funding that doesn't align with their work. MatchMaker exists to fix that - describe your research project, upload supporting documents, and MatchMaker returns a ranked list of grant opportunities that are actually right for you.
+Researchers are always looking for relevant funding, but there is no mechanism to easily find relevant sources. MatchMaker exists to fix that - describe your research project, upload supporting documents, and MatchMaker returns a ranked list of grant opportunities that are actually right for you.
 
 ## Features
 
