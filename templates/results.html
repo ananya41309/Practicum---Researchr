@@ -7,10 +7,10 @@
 </head>
 <body>
 
-  
   <div class="container">
     <button class="btn" id="scrollTopBtn">Scroll to Top ↑</button>
     <button class="btn" id="scrollBottomBtn">Scroll to Bottom ↓</button>
+
     <h1>Recommended Grants for "{{ title }}"</h1>
 
     <p class="subtitle">
@@ -77,13 +77,96 @@
     <p class="explanation">
       Matched based on similarity between your project description and the grant abstract.
     </p>
+
+    <form class="project-form" method="POST" enctype="multipart/form-data" action="{{ url_for('edit_search') }}">
+
+      <input type="hidden" id="title" name="title" value="{{ title }}" required />
+      <input type="hidden" id="description" name="description" value="{{ description }}" required />
+      <h2>Edit Your Search</h2>
+      
+      <label for="keywords">Edit Keywords (comma-separated)</label>
+      <p class="explanation">
+        Based on your project description, we have extracted the following keywords. You can edit these keywords to refine your search and find more relevant grants.
+    </p>
+      <textarea id="keywords" name="keywords" rows="3" placeholder="Edit keywords (comma-separated)">{{ keywords }}</textarea>
+
+      <!-- Filter Section -->
+      <button type="button" id="filterToggle" class="btn action-btn filter-btn">Edit Filters</button>
+
+      <!-- Selected Filter Chips -->
+      <div id="activeFilters" class="active-filters"></div>
+
+      <!-- Sort + Submit Row -->
+      <div class="sort-submit-row">
+        <select id="sortOptions" class="sort-dropdown">
+          <option value="relevance" selected>Sort by: Relevance</option>
+          <option value="open_status">Status (Open first)</option>
+          <option value="deadline">Deadline</option>
+        </select>
+
+        <button type="submit" class="btn action-btn search-btn">
+          Re-run Search
+        </button>
+      </div>
+
+    </form>
+
     <div class="actions">
       <a href="{{ url_for('index') }}" class="back-link">
         ← Back to project submission
       </a>
     </div>
+
+    <aside id="filtersSidebar" class="filters-sidebar hidden">
+    <h3>Filters</h3>
+
+    <div class="filter-section">
+      <p class="filter-title">Status</p>
+      <label><input type="checkbox" name="status" value="open"> Open</label>
+      <label><input type="checkbox" name="status" value="forecast"> Forecast</label>
+    </div>
+
+    <div class="filter-section">
+      <p class="filter-title">Eligibility</p>
+      <label><input type="checkbox" name="eligibility" value="federal"> Federal</label>
+      <label><input type="checkbox" name="eligibility" value="state"> State</label>
+      <label><input type="checkbox" name="eligibility" value="private"> Private</label>
+    </div>
+
+    <div class="filter-section">
+      <p class="filter-title">Category</p>
+      <label><input type="checkbox" name="category" value="science"> Science</label>
+      <label><input type="checkbox" name="category" value="education"> Education</label>
+      <label><input type="checkbox" name="category" value="health"> Health</label>
+    </div>
+
+    <button id="applyFilters" class="btn apply-btn">Apply Filters</button>
+  </aside>
   </div>
   <script>
+
+    const filterToggleBtn = document.getElementById('filterToggle');
+    const filtersSidebar = document.getElementById('filtersSidebar');
+    const activeFiltersDiv = document.getElementById('activeFilters');
+
+    filterToggleBtn.onclick = () => {
+      filtersSidebar.classList.toggle('hidden');
+    };
+
+    document.getElementById('applyFilters').onclick = () => {
+      activeFiltersDiv.innerHTML = '';
+      const checkedBoxes = document.querySelectorAll('aside input[type="checkbox"]:checked');
+
+      checkedBoxes.forEach(box => {
+        const chip = document.createElement('span');
+        chip.className = 'filter-chip';
+        chip.textContent = `${box.name}: ${box.value}`;
+        activeFiltersDiv.appendChild(chip);
+      });
+
+      filtersSidebar.classList.add('hidden');
+    };
+    
     function toggleDescription(btn) {
       const card = btn.closest(".result-card");
       const description = card.querySelector(".grant-description");

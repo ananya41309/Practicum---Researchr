@@ -74,6 +74,22 @@ def index():
 
     return render_template("index.html")
 
+@app.route("/edit-search", methods=["POST"])
+def edit_search():
+    title = request.form["title"]
+    description = request.form["description"]
+
+    # edit the keywords based on user input
+    new_keywords = request.form["keywords"].strip().split(", ")
+    
+    results = search_grants(title, description, new_keywords, client)
+    
+    if len(description) > 500:
+        description = description[:500] + "..."
+    app.config["RESULTS"] = results
+    app.config["KEYWORDS"] = new_keywords
+    return redirect(url_for("search_results", proj_title=title, proj_description=description))
+
 @app.route("/search", methods=["POST"])
 def search():
     title = request.form["title"]
@@ -85,84 +101,47 @@ def search():
     doc_keywords = app.config.get("KEYWORDS", [])
 
     # keywords from project description
-    desc_keywords = extract_keywords(description)
+    #desc_keywords = extract_keywords(description)
 
     # merge + remove duplicates
-    merged_keywords = list(set(doc_keywords + desc_keywords))
+    #merged_keywords = list(set(doc_keywords + desc_keywords))
 
-    # print("\n--- KEYWORD DEBUG ---")
-    # print("Document Keywords:", doc_keywords)
-    # print("Description Keywords:", desc_keywords)
-    # print("Merged Keywords:", merged_keywords)
-    # print("----------------------\n")
+    #print("Document Keywords:", doc_keywords)
+    #print("Description Keywords:", desc_keywords)
+    #print("Merged Keywords:", merged_keywords)
+    #print("----------------------\n")
 
     response = client.chat.completions.create(
         model="deepseek-chat",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant for generating search keywords."},
-            {"role": "user", "content": f"Given these details about the research project: {title} {description} {file_text}, please generate a list of the top 10 keywords that best represent the researcher's interests and the project focus. These keywords will be used to search for relevant grant opportunities. Please return only the keywords in a list format without any additional text or explanation, separated only by spaces."}
+            {"role": "system", "content": "You are a helpful assistant for ranking grant opportunities based on relevance to a researcher's interests."},
+            {"role": "user", "content": f"Given these details about the research project: {title} {description} {file_text}, please generate a list of 10 keywords that best represent the researcher's interests and the project focus taken directly from the project description and text. These keywords will be used to search for relevant grant opportunities. Please return only the keywords in a list format without any additional text or explanation, separated only by spaces. If there are fewer than 10 relevant keywords, return as many as you can."}
         ]
     )
     ds_keywords = response.choices[0].message.content.strip().split()
-    print(ds_keywords)
-    keywords = ds_keywords
-
-    status_open = False
-    status_forecast = False
-
-    if request.form.get("status_open"):
-        status_open = True
-    if request.form.get("status_forecast"):
-        status_forecast = True
-
-    form_status_values = request.form.getlist("status")
-    for sv in form_status_values:
-        sv = (sv or "").strip().lower()
-        if sv in ("open", "posted", "open_opportunity"):
-            status_open = True
-        if "forecast" in sv or "anticipated" in sv:
-            status_forecast = True
-
-    sources = request.form.getlist("source") or request.form.getlist("eligibility") or []
-    sources = [s.strip().lower() for s in sources if s and s.strip()]
-
-    award_min = request.form.get("award_min")
-    award_max = request.form.get("award_max")
-    per_page = int(request.form.get("per_page", 10))
-    sort_by = request.form.get("sortOptions", "relevance")
-
-    # DEBUG: print received filter values to console so you can verify what the form actually sent
-    print("--- Search form values ---")
-    print("status_open:", status_open)
-    print("status_forecast:", status_forecast)
-    print("sources:", sources)
-    print("award_min:", award_min, "award_max:", award_max)
-    print("per_page:", per_page, "sort_by:", sort_by)
-    print("--------------------------")
-
+    
     print("\n--- KEYWORD DEBUG ---")
-    print("Generated Keywords:", keywords)
-    print("----------------------\n")
+    print(ds_keywords)
+    print("--------------------------------\n")
+    app.config["KEYWORDS"] = ds_keywords
+    results = search_grants(title, description, ds_keywords, client)
     
-    results = search_grants(
-        title=title,
-        description=description,
-        keywords=keywords,
-        client=client,
-        status_open=status_open,
-        status_forecast=status_forecast,
-        sources=sources,
-        award_min=award_min,
-        award_max=award_max,
-        sort_by=sort_by,
-        limit=per_page
-    )
-    #results = search_grants(title, description, merged_keywords, client)
-    
+    app.config["RESULTS"] = results
     if len(description) > 500:
         description = description[:500] + "..."
+    print(description)
+    print(ds_keywords)
+    return redirect(url_for("search_results", proj_title=title, proj_description=description))
+
+@app.route("/results")
+def search_results():
+    title = request.args.get('proj_title', '')
+    description = request.args.get('proj_description', '')
+    results = app.config.get("RESULTS", None)
+    keywords = app.config.get("KEYWORDS", [])
+    keywords_str = ", ".join(keywords)
     
-    return render_template("results.html", results=results, title=title, description=description)
+    return render_template("results.html", results=results, title=title, description=description, keywords=keywords_str)
 
 if __name__ == "__main__":
     app.run(debug=True)

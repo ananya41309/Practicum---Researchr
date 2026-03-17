@@ -1,95 +1,93 @@
-# Researchr
+# MatchMaker
 
-This is a simple Flask web application that allows users to submit a research project description along with relevant files (e.g., papers, datasets, notes). The long-term goal of this project is to assist researchers not only in managing project materials, but also in identifying relevant funding opportunities by automatically matching project descriptions to external grant programs.
+> Connecting researchers with the funding they actually deserve.
+
+Most researchers receive funding that doesn't align with their work. MatchMaker exists to fix that — describe your research project, upload supporting documents, and MatchMaker returns a ranked list of grant opportunities that are actually right for you.
+
+---
 
 ## Features
 
-- Project title and description input
-- Multiple file uploads
-- Basic file type validation
-- Displaying search results (WIP)
+- Grant search across grants.gov and Northwestern University Foundation Relations
+- Results ranked by relevance to your project
+- Keyword refinement to tune results after your first search
+- Filter by status, funding source, and award amount
+- Save grants to a personal list
+- User profile page
 
-## Planned/WIP Features
-
-- **Grant Matching**
-  - Given a research project description and uploaded materials, the system will identify relevant grants that the researcher may be eligible to apply for.
-  - Grant recommendations may be based on keywords, research area, eligibility criteria, and funding agency priorities.
-- **Wider Searching for Sources**
-  - Currently we are just pulling from [grants.gov](https://grants.gov) and the Northwestern University Funding Relations [funding opportunities](https://www.northwestern.edu/foundationrelations/find-funding/funding-opportunities/) page
-  - Eventually we will look to source from other places for funding, e.g. foundations, non-profits, companies with RFPs.
-- **Refined Searching**
-  - The researcher will be able to filter their search for specific grants, due dates, funding amounts, organizations, etc.
-  - In addition, the researcher will be able to sort the results for certain features e.g. opening date, grant amount, etc.
-- **Results Saving and Accounts**
-  - Users will eventually be able to store results within accounts and saved "conversations".
+---
 
 ## Tech Stack
 
-- Python
-- Flask
-- HTML / CSS
+- Python 3 / Flask
+- DeepSeek API for keyword extraction and ranking
+- HTML / CSS / Vanilla JavaScript
 
-## Project Structure
+---
 
-WIP
-
-## Setup Instructions
+## Setup
 
 ### 1. Clone the repository
-
 ```bash
 git clone <your-repo-url>
-cd project
+cd MatchMaker
 ```
-### 2. Create and activate a virtual environment (recommended)
+
+### 2. Create and activate a virtual environment
 ```bash
+# macOS / Linux
 python -m venv venv
-source venv/bin/activate      # macOS/Linux
-venv\Scripts\activate         # Windows
+source venv/bin/activate
+
+# Windows
+venv\Scripts\activate
 ```
+
 ### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
-
 ```
-### 4. Run the application
+
+### 4. Add your API key
+
+Create a file called `api_key.py` in the root directory:
+```python
+api_key = "your-deepseek-api-key-here"
+```
+
+> `api_key.py` is in `.gitignore` — never commit it. Each team member needs their own local copy.
+
+### 5. Run the app
 ```bash
 python app.py
 ```
 
-The app will be available at:
+Open `http://127.0.0.1:5000` in your browser. Enter any email and password to log in.
 
-http://127.0.0.1:5000
+---
 
-## Usage
+## Routes
 
-1. Open the app in your browser
+| Route | Description |
+|---|---|
+| `/login` | Login page |
+| `/` | Main search form |
+| `/search` | Processes submission and runs grant search |
+| `/results` | Displays ranked results |
+| `/edit-search` | Re-runs search with edited keywords |
+| `/saved` | Saved grants |
+| `/profile` | User profile |
 
-2. Enter a project title and description
+---
 
-3. Upload any relevant files
+## Notes
 
-4. Submit the form
+- Login is a placeholder — any credentials will work
+- Saved grants are stored in browser localStorage, not a database
+- Filters are UI-only and not yet wired into the backend search
 
-Researchr will automatically search for grants that are available and fit your project!
+---
 
-## Configuration
-Allowed file types can be modified in app.py:
+## Team
 
-ALLOWED_EXTENSIONS = {"pdf", "docx", "csv", "txt"}
-
-## Future Improvements / Task Board
-
-~~- GET API KEY - Hongbo~~
-~~- Description summarization - Nick~~
-- Filters working - Hongbo
-- Build a strong test suite from recent grant distributions
-- Get 10 good outputs - Nick / Hongbo
-- General UI updates (modernization) - Ananya 
-- Display filters on sidebar + edit search feature - Ananya
-- Add corporate funding sources 
-
-# Nice to Haves / Additional Task Board
-- File preview
-- Accounts - Ananya 
-  - Set up Firebase / database management - Ananya
+Ananya, Hongbo, Nicholas
