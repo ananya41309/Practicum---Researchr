@@ -114,7 +114,7 @@ def apply_filters(results, status_open, status_forecast, sources, award_min, awa
             continue
         if amax is not None and award is not None and award > amax:
             continue
-
+        print(r['title'])
         out.append(r)
     return out
 
@@ -150,10 +150,10 @@ def search_grants(title, description, keywords, client, status_open=True, status
     ranked = sort_results(filtered, sort_by = sort_by)
     top_n = ranked[:limit]
     
-    ranked = sorted(results, key=lambda x: x["score"], reverse=True)
+    #ranked = sorted(results, key=lambda x: x["score"], reverse=True)
     
     # generate summaries for the best results
-    for r in ranked:
+    for r in top_n:
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
@@ -167,10 +167,10 @@ def search_grants(title, description, keywords, client, status_open=True, status
         #r["summary"] = ""
     
     print ("Ranked Grants:")
-    for r in ranked:
+    for r in top_n:
         print(r["title"], r["score"], r["summary"])
         
-    return ranked
+    return top_n
 
 def nufr_search(keywords):
     

@@ -99,7 +99,56 @@ def edit_search():
     # edit the keywords based on user input
     new_keywords = request.form["keywords"].strip().split(", ")
     
-    results = search_grants(title, description, new_keywords, client)
+    status_open = False
+    status_forecast = False
+
+    if request.form.get("status_open"):
+        status_open = True
+    if request.form.get("status_forecast"):
+        status_forecast = True
+
+    form_status_values = request.form.getlist("status")
+    for sv in form_status_values:
+        sv = (sv or "").strip().lower()
+        if sv in ("open", "posted", "open_opportunity"):
+            status_open = True
+        if "forecast" in sv or "anticipated" in sv:
+            status_forecast = True
+
+    sources = request.form.getlist("source") or request.form.getlist("eligibility") or []
+    sources = [s.strip().lower() for s in sources if s and s.strip()]
+
+    award_min = request.form.get("award_min")
+    award_max = request.form.get("award_max")
+    per_page = int(request.form.get("per_page", 10))
+    sort_by = request.form.get("sortOptions", "relevance")
+
+    # DEBUG: print received filter values to console so you can verify what the form actually sent
+    print("--- Search form values ---")
+    print("status_open:", status_open)
+    print("status_forecast:", status_forecast)
+    print("sources:", sources)
+    print("award_min:", award_min, "award_max:", award_max)
+    print("per_page:", per_page, "sort_by:", sort_by)
+    print("--------------------------")
+
+    print("\n--- KEYWORD DEBUG ---")
+    print("Generated Keywords:", new_keywords)
+    print("----------------------\n")
+    
+    results = search_grants(
+        title=title,
+        description=description,
+        keywords=new_keywords,
+        client=client,
+        status_open=status_open,
+        status_forecast=status_forecast,
+        sources=sources,
+        award_min=award_min,
+        award_max=award_max,
+        sort_by=sort_by,
+        limit=per_page
+    )
     
     if len(description) > 500:
         description = description[:500] + "..."
@@ -141,7 +190,59 @@ def search():
     print(ds_keywords)
     print("--------------------------------\n")
     app.config["KEYWORDS"] = ds_keywords
-    results = search_grants(title, description, ds_keywords, client)
+    
+    keywords = ds_keywords
+
+    status_open = False
+    status_forecast = False
+
+    if request.form.get("status_open"):
+        status_open = True
+    if request.form.get("status_forecast"):
+        status_forecast = True
+
+    form_status_values = request.form.getlist("status")
+    for sv in form_status_values:
+        sv = (sv or "").strip().lower()
+        if sv in ("open", "posted", "open_opportunity"):
+            status_open = True
+        if "forecast" in sv or "anticipated" in sv:
+            status_forecast = True
+
+    sources = request.form.getlist("source") or request.form.getlist("eligibility") or []
+    sources = [s.strip().lower() for s in sources if s and s.strip()]
+
+    award_min = request.form.get("award_min")
+    award_max = request.form.get("award_max")
+    per_page = int(request.form.get("per_page", 10))
+    sort_by = request.form.get("sortOptions", "relevance")
+
+    # DEBUG: print received filter values to console so you can verify what the form actually sent
+    print("--- Search form values ---")
+    print("status_open:", status_open)
+    print("status_forecast:", status_forecast)
+    print("sources:", sources)
+    print("award_min:", award_min, "award_max:", award_max)
+    print("per_page:", per_page, "sort_by:", sort_by)
+    print("--------------------------")
+
+    print("\n--- KEYWORD DEBUG ---")
+    print("Generated Keywords:", keywords)
+    print("----------------------\n")
+    
+    results = search_grants(
+        title=title,
+        description=description,
+        keywords=keywords,
+        client=client,
+        status_open=status_open,
+        status_forecast=status_forecast,
+        sources=sources,
+        award_min=award_min,
+        award_max=award_max,
+        sort_by=sort_by,
+        limit=per_page
+    )
     
     app.config["RESULTS"] = results
     if len(description) > 500:

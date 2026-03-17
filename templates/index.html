@@ -97,21 +97,23 @@
 
             <div>
               <span class="filter-col-label">Status</span>
-              <label class="check-option"><input type="checkbox" name="status" value="open"> Open</label>
-              <label class="check-option"><input type="checkbox" name="status" value="forecast"> Forecasted</label>
-              <label class="check-option"><input type="checkbox" name="status" value="archived"> Archived</label>
+              <label class="check-option"><input type="checkbox" name="status_open" value="open"> Open</label>
+              <label class="check-option"><input type="checkbox" name="status_forecast" value="forecast"> Forecasted</label>
             </div>
 
             <div>
               <span class="filter-col-label">Funding Source</span>
               <label class="check-option"><input type="checkbox" name="source" value="federal"> Federal</label>
-              <label class="check-option"><input type="checkbox" name="source" value="non-federal"> Non-Federal</label>
+              <label class="check-option"><input type="checkbox" name="source" value="foundation"> Non-Federal</label>
             </div>
 
             <div>
               <span class="filter-col-label">Number of Results</span>
-              <label class="check-option"><input type="radio" name="num_results" value="10"> 10 results</label>
-              <label class="check-option"><input type="radio" name="num_results" value="25" checked> 25 results</label>
+              <select name="per_page">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+              </select>
             </div>
 
           </div>
@@ -121,11 +123,11 @@
           <div class="form-row">
             <div class="field">
               <label>Award Amount — Min ($)</label>
-              <input type="text" name="award_min" placeholder="e.g. 10,000" />
+              <input type="number" name="award_min" placeholder="e.g. 10,000" />
             </div>
             <div class="field">
               <label>Award Amount — Max ($)</label>
-              <input type="text" name="award_max" placeholder="e.g. 500,000" />
+              <input type="number" name="award_max" placeholder="e.g. 500,000" />
             </div>
           </div>
 
